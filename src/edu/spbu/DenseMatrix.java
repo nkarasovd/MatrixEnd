@@ -9,9 +9,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.Iterator;
-import java.util.Map;
 import java.util.Scanner;
 
 public class DenseMatrix implements Matrix {
@@ -84,39 +82,32 @@ public class DenseMatrix implements Matrix {
         if (other instanceof DenseMatrix)
             return this.mulDD((DenseMatrix) other);
 
-        else if (other instanceof SM)
-            return this.mulDS((SM) other);
+        else if (other instanceof SparseMatrix)
+            return this.mulDS((SparseMatrix) other);
 
         else return null;
     }
 
     // Перемножение Dense на Dense
     public DenseMatrix mulDD(DenseMatrix other) {
-        if (matrixD[0].length == other.matrixD.length) {
-            DenseMatrix res = new DenseMatrix(matrixD.length, other.matrixD[0].length);
-            for (int i = 0; i < matrixD.length; i++) {
-                for (int j = 0; j < other.matrixD[0].length; j++) {
-                    res.matrixD[i][j] = 0.0;
-                    for (int k = 0; k < matrixD[0].length; k++) {
-                        res.matrixD[i][j] = res.matrixD[i][j] + this.matrixD[i][k] * other.matrixD[k][j];
-
-                    }
+        DenseMatrix tr = transpD(other);
+        DenseMatrix res = new DenseMatrix(size, size);
+        for (int i = 0; i < size; i++) {
+            for (int j = 0; j < size; j++) {
+                for (int k = 0; k < size; k++) {
+                    res.matrixD[i][j] = res.matrixD[i][j] + this.matrixD[i][k] * tr.matrixD[j][k];
                 }
-
             }
-
-            res.DenseOut();
-            return res;
-        } else {
-            System.out.println("This matrix cant be multiplied");
-            return null;
         }
+        //res.DenseOut();
+        return res;
     }
 
-    // Перемножение Dense на Sparse
-    public SM mulDS(SM other) {
 
-        SM res = new SM(this.size);
+    // Перемножение Dense на Sparse
+    public SparseMatrix mulDS(SparseMatrix other) {
+
+        SparseMatrix res = new SparseMatrix(this.size);
 
         for (Point coordinate : other.MatrixS.keySet()) {
             for (int j = 0; j < this.size; j++) {
@@ -136,9 +127,22 @@ public class DenseMatrix implements Matrix {
             if (res.MatrixS.get(it.next()).equals(0.0))
                 it.remove();
         }
-        res.SparseOut();
+        //res.SparseOut();
         return res;
     }
+
+    public DenseMatrix transpD(DenseMatrix other) {
+
+        DenseMatrix res = new DenseMatrix(other.size, other.size);
+
+        for (int i = 0; i < other.size; i++) {
+            for (int j = 0; j < other.size; j++) {
+                res.matrixD[j][i] = other.matrixD[i][j];
+            }
+        }
+        return res;
+    }
+
 
     // Метод equals для Dense Matrix
     public boolean equals(Object o) {

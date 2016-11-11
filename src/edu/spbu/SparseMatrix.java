@@ -9,19 +9,18 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.rmi.MarshalException;
 import java.util.*;
 
 import static java.lang.Double.parseDouble;
 
-public class SM implements Matrix {
+public class SparseMatrix implements Matrix {
 
 
-    public SM(String file) {
+    public SparseMatrix(String file) {
         readSparse(file);
     }
 
-    public SM(int size) {
+    public SparseMatrix(int size) {
         this.MatrixS = new HashMap<>();
         this.size = size;
 
@@ -102,8 +101,8 @@ public class SM implements Matrix {
 
     // Как следует перемножать
     public Matrix mul(Matrix other) {
-        if (other instanceof SM) {
-            return (Matrix) ((SM) other).MulSparse(this);
+        if (other instanceof SparseMatrix) {
+            return (Matrix) ((SparseMatrix) other).MulSparse(this);
         } else {
             if (other instanceof DenseMatrix)
                 return this.mulSD((DenseMatrix) other);
@@ -114,8 +113,8 @@ public class SM implements Matrix {
 
 
     // Перемножение двух Sparse Matrix (надо доделать)
-    public SM MulSparse(SM other) {
-        SM res = new SM(size);
+    public SparseMatrix MulSparse(SparseMatrix other) {
+        SparseMatrix res = new SparseMatrix(size);
         HashMap<Point, Double> MatrixSss = new HashMap<Point, Double>();
         Iterator<HashMap.Entry<Point, Double>> IMatrix1 = this.MatrixS.entrySet().iterator();
         while (IMatrix1.hasNext()) {
@@ -144,14 +143,14 @@ public class SM implements Matrix {
             }
         }
         res.MatrixS =  MatrixSss;
-        res.SparseOut();
+       //res.SparseOut();
         return res;
     }
 
     // Умножение Sparse на Dense
-    public SM mulSD(DenseMatrix other) {
+    public SparseMatrix mulSD(DenseMatrix other) {
 
-        SM res = new SM(this.size);
+        SparseMatrix res = new SparseMatrix(this.size);
         for (Point coordinate : this.MatrixS.keySet()) {
             for (int j = 0; j < other.size; j++) {
                 Point v = new Point(coordinate.x, j);
@@ -169,16 +168,16 @@ public class SM implements Matrix {
             if (res.MatrixS.get(it.next()).equals(0.0))
                 it.remove();
         }
-        res.SparseOut();
+        //res.SparseOut();
         return res;
     }
 
     // Метод equals для Sparse Matrix
     public boolean equals(Object o) {
-        if (!(o instanceof SM)) {
+        if (!(o instanceof SparseMatrix)) {
             return false;
         }
-        SM other = (SM) o;
+        SparseMatrix other = (SparseMatrix) o;
         if (this.MatrixS.size() == other.MatrixS.size()) {
             for (Point Coord : this.MatrixS.keySet()) {
 
